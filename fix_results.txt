@@ -1,0 +1,4 @@
+('mca.ac.ug-Sep-2025', 'NginxParser')
+('sample.log', 'NginxParser')
+('auth.log', 'AuthParser')
+('Linux_2k.log', 'AuthParser')

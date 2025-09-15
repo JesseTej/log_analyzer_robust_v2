@@ -1,0 +1,7 @@
+Jul 17 09:34:12 localhost sshd[1245]: Accepted password for user1 from 192.168.1.100 port 54321 ssh2
+Jul 17 09:35:01 localhost sudo:   user2 : TTY=pts/1 ; PWD=/home/user2 ; USER=root ; COMMAND=/bin/ls
+Jul 17 09:36:15 localhost sshd[1249]: Failed password for invalid user admin from 203.0.113.5 port 4587 ssh2
+
+127.0.0.1 - - [17/Jul/2025:09:38:29 +0300] "GET /index.html HTTP/1.1" 200 1024 "-" "Mozilla/5.0"
+203.0.113.45 - - [17/Jul/2025:09:38:55 +0300] "POST /login HTTP/1.1" 403 512 "-" "curl/7.68.0"
+
