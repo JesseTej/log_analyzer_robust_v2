@@ -107,10 +107,6 @@ Some .split()-based parsing is brittle on unusual log lines. Regex and safe spli
 
 Ensure logs are UTF-8 encoded; malformed encodings may be skipped.
 
-License
-
-MIT License – feel free to use, modify, and extend.
-
 log_analyzer_robust_v2/
 ├── run.py                         ← Entry point for launching the GUI
 ├── requirements.txt               ← Python dependencies (if present)
