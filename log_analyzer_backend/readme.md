@@ -1,182 +1,117 @@
-Here's a **clean, scalable backend structure** for a **modular log parser engine**, ideal for your log analyzer project.
+Log Analyzer Robust v2
 
-It’s designed to:
+A modular and GUI-based log analyzer designed for cybersecurity and system administration use cases.
+This tool supports parsing multiple log formats (Nginx, Apache, Auth, etc.), provides a table-based GUI for filtering and searching logs, and can highlight IPs, ports, and domains.
 
-* Support **multiple log types** (auth.log, nginx, JSON logs, custom formats)
-* Be **easily extensible** via plug-and-play parsers
-* Keep parsing logic **decoupled** from the GUI frontend
+Features
 
----
+Multi-format log parsing
 
-# 🧱 1. 🔁 High-Level Architecture
+Nginx / Apache access logs
 
-```
-/log_analyzer_backend/
-├── __init__.py
-├── log_loader.py         ← Handles file loading and format detection
-├── log_parser.py         ← Dispatcher for parser selection
-├── parsers/
-│   ├── __init__.py
-│   ├── base_parser.py    ← Abstract base class
-│   ├── auth_parser.py    ← For /var/log/auth.log
-│   ├── nginx_parser.py   ← For access/error logs
-│   └── json_parser.py    ← For structured logs
-└── models/
-    ├── __init__.py
-    └── log_entry.py      ← Dataclass for unified log representation
-```
+Auth logs (Linux authentication attempts, SSH, etc.)
 
----
+Extendable parser system (parser_registry.py)
 
-# 🔧 2. `log_entry.py` — Unified Log Model
+Robust parsing
 
-```python
-from dataclasses import dataclass
-from datetime import datetime
+Skips malformed log lines gracefully instead of crashing
 
-@dataclass
-class LogEntry:
-    timestamp: datetime
-    level: str
-    source: str  # file or service name
-    message: str
-    user: str = None
-    ip_address: str = None
-    raw: str = ""
-```
+Uses safe parsing functions with fallbacks
 
----
+GUI Frontend
 
-# 🧱 3. `base_parser.py` — Abstract Base Class
+Built with Python + Qt (or wx, depending on setup)
 
-```python
-from abc import ABC, abstractmethod
+Interactive table for browsing parsed logs
 
-class BaseParser(ABC):
-    def __init__(self, filepath):
-        self.filepath = filepath
+Sorting, filtering, and search
 
-    @abstractmethod
-    def parse(self):
-        """Yields LogEntry objects"""
-        pass
+Utilities
 
-    @abstractmethod
-    def match_format(cls, filepath: str) -> bool:
-        """Checks if this parser can handle the file"""
-        pass
-```
+Extract IPs, ports, and domains from logs
 
----
+Format and normalize timestamps
 
-# 🗝️ 4. Example: `auth_parser.py`
+Installation
 
-```python
-import re
-from datetime import datetime
-from ..models.log_entry import LogEntry
-from .base_parser import BaseParser
+Clone the repo:
 
-class AuthLogParser(BaseParser):
-    def parse(self):
-        with open(self.filepath) as f:
-            for line in f:
-                match = re.match(r'^(\w+ +\d+ \d+:\d+:\d+) (\S+) (.+)', line)
-                if match:
-                    timestamp_str, hostname, msg = match.groups()
-                    timestamp = datetime.strptime(timestamp_str, "%b %d %H:%M:%S")
-                    yield LogEntry(
-                        timestamp=timestamp,
-                        level="INFO",  # Basic, can improve with severity detection
-                        source="auth.log",
-                        message=msg,
-                        raw=line.strip()
-                    )
+git clone https://github.com/your-repo/log_analyzer_robust_v2.git
+cd log_analyzer_robust_v2
 
-    @classmethod
-    def match_format(cls, filepath: str):
-        return "auth.log" in filepath
-```
 
----
+Create and activate a virtual environment:
 
-# 🧭 5. `log_parser.py` — Central Dispatcher
+python3 -m venv venv
+source venv/bin/activate
 
-```python
-from .parsers.auth_parser import AuthLogParser
-from .parsers.nginx_parser import NginxLogParser
-from .parsers.json_parser import JSONLogParser
 
-PARSERS = [AuthLogParser, NginxLogParser, JSONLogParser]
+Install dependencies:
 
-def get_parser(filepath: str):
-    for parser_cls in PARSERS:
-        if parser_cls.match_format(filepath):
-            return parser_cls(filepath)
-    raise ValueError("No suitable parser found.")
-```
+pip install -r requirements.txt
 
----
+Usage
 
-# 📂 6. `log_loader.py` — Load + Normalize
+Run the GUI:
 
-```python
-from .log_parser import get_parser
+python run.py
 
-def load_log_entries(filepath: str):
-    parser = get_parser(filepath)
-    return list(parser.parse())
-```
 
----
+Or analyze a single log file via command line (if CLI helper is included):
 
-# 💡 Optional: Plugin Support
+python cli.py /path/to/access.log
 
-Allow users to drop their own parsers into a `parsers/` directory:
+Handling Malformed Lines
 
-```python
-# log_parser.py
-import importlib.util
-import os
+The analyzer is designed to skip bad log entries without failing.
+Every parser uses a pattern like:
 
-def load_custom_parsers():
-    for file in os.listdir("log_analyzer_backend/parsers"):
-        if file.endswith("_parser.py"):
-            # Dynamically import
-            ...
-```
+entry = parse_log_line(line)
+if not entry:
+    continue  # skip malformed line
 
----
 
-# 🧪 How It Connects to the GUI
+This ensures:
 
-Your GTK frontend will call:
+Corrupt or incomplete log lines don’t break the program
 
-```python
-from log_analyzer_backend.log_loader import load_log_entries
+Errors are logged but don’t stop the analysis
 
-entries = load_log_entries("/var/log/auth.log")
-```
+Extending the Parser
 
-It gets a list of `LogEntry` objects to display in the UI.
+To add support for a new log format:
 
----
+Create a new parser class in log_analyzer_backend/parsers/
 
-# 🚀 Advantages of This Design
+Implement parse_log_line(line) returning a dictionary or None
 
-✅ Easy to add new formats
-✅ Testable parsers (unit test each one)
-✅ Frontend stays clean — it doesn’t care what file is loaded
-✅ Uniform data structure (`LogEntry`) makes sorting, searching, exporting trivial
-✅ Allows future plugin support or sandboxed execution
+Register it in parser_registry.py
 
----
+Example
 
-Let me know if you want:
+Sample Nginx log line:
 
-* Sample parsers for NGINX or JSON logs
-* A backend starter repo scaffold
-* GUI integration with this backend
+127.0.0.1 - - [10/Oct/2020:13:55:36 +0000] "GET / HTTP/1.1" 200 612
 
-This architecture is production-ready for most single-user or team-based log analysis tools.
 
+Parsed result:
+
+{
+  "ip": "127.0.0.1",
+  "timestamp": "2020-10-10T13:55:36+00:00",
+  "method": "GET",
+  "path": "/",
+  "status": 200,
+  "size": 612
+}
+
+Known Issues
+
+Some .split()-based parsing is brittle on unusual log lines. Regex and safe split checks have been introduced to reduce errors.
+
+Ensure logs are UTF-8 encoded; malformed encodings may be skipped.
+
+License
+
+MIT License – feel free to use, modify, and extend.
