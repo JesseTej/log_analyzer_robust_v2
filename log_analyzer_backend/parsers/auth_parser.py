@@ -16,7 +16,7 @@ class AuthParser(BaseParser):
     )
 
     def parse_log_line(line: str) -> dict | None:
-        m = LOG_PATTERN.match(line)
+        m = AuthParser.LOG_PATTERN.match(line)
         if not m:
             return None  # malformed line
         gd = m.groupdict()
