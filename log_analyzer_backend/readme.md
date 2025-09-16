@@ -1,4 +1,4 @@
-Log Analyzer Robust v2
+# Log Analyzer Robust v2
 
 A modular and GUI-based log analyzer designed for cybersecurity and system administration use cases.
 This tool supports parsing multiple log formats (Nginx, Apache, Auth, etc.), provides a table-based GUI for filtering and searching logs, and can highlight IPs, ports, and domains.
@@ -37,15 +37,13 @@ Installation
 
 Clone the repo:
 
-git clone https://github.com/your-repo/log_analyzer_robust_v2.git
+git clone <https://github.com/your-repo/log_analyzer_robust_v2.git>
 cd log_analyzer_robust_v2
-
 
 Create and activate a virtual environment:
 
 python3 -m venv venv
 source venv/bin/activate
-
 
 Install dependencies:
 
@@ -56,7 +54,6 @@ Usage
 Run the GUI:
 
 python run.py
-
 
 Or analyze a single log file via command line (if CLI helper is included):
 
@@ -70,7 +67,6 @@ Every parser uses a pattern like:
 entry = parse_log_line(line)
 if not entry:
     continue  # skip malformed line
-
 
 This ensures:
 
@@ -93,7 +89,6 @@ Example
 Sample Nginx log line:
 
 127.0.0.1 - - [10/Oct/2020:13:55:36 +0000] "GET / HTTP/1.1" 200 612
-
 
 Parsed result:
 
