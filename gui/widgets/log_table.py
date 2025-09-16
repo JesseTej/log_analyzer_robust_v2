@@ -10,14 +10,14 @@ class LogTable(Gtk.ScrolledWindow):
         self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.set_vexpand(True)
 
-        # Columns: Timestamp, Level, Source, Message
-        self.model = Gtk.ListStore(str, str, str, str, str, str, str, str, str)
+        # Columns: Timestamp, Level, SIP, DIP, Message, Source
+        self.model = Gtk.ListStore(str, str, str, str, str, str)
         self.filter = self.model.filter_new()
         self.filter.set_visible_func(self.filter_func)
 
         self.treeview = Gtk.TreeView(model=self.filter)
 
-        column_titles = ["Timestamp", "Level", "Source", "SIP", "DIP", "Message"]
+        column_titles = ["Timestamp", "Level", "SIP", "DIP", "Message", "Source"]
 
         def get_level_color(level):
             return {
@@ -62,19 +62,18 @@ class LogTable(Gtk.ScrolledWindow):
             self.model.append([
                 format_timestamp(entry.timestamp),
                 entry.level,
-                getattr(entry, "source", ""),
+                getattr(entry, 'src_ip', '') or '',
+                getattr(entry, 'dst_ip', '') or '',
                 entry.message,
-                getattr(entry,'src_ip','') or '',
-                getattr(entry,'dst_ip','') or '',
-                getattr(entry,'src_port','') or '',
-                getattr(entry,'dst_port','') or '',
-                ','.join(getattr(entry,'domains',[]) or [])
+                getattr(entry, 'source', '')
             ])
 
     def append_entry(self, entry):
         self.model.append([
             format_timestamp(entry.timestamp),
             entry.level,
-            getattr(entry, "source", ""),
-            entry.message
+            getattr(entry, 'src_ip', '') or '',
+            getattr(entry, 'dst_ip', '') or '',
+            entry.message,
+            getattr(entry, 'source', '')
         ])

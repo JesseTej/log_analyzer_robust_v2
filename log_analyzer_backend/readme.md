@@ -115,3 +115,41 @@ Ensure logs are UTF-8 encoded; malformed encodings may be skipped.
 License
 
 MIT License – feel free to use, modify, and extend.
+
+log_analyzer_robust_v2/
+├── run.py                         ← Entry point for launching the GUI
+├── requirements.txt               ← Python dependencies (if present)
+├── README.md                      ← Documentation (to be finalized)
+
+├── gui/                           ← Graphical user interface
+│   ├── __init__.py
+│   ├── main_window.py             ← Main application window
+│   └── widgets/
+│       ├── __init__.py
+│       └── log_table.py           ← Table widget for displaying parsed logs
+
+├── log_analyzer_backend/          ← Core backend logic
+│   ├── __init__.py
+│   ├── log_loader.py              ← Handles log file loading
+│   ├── log_parser.py              ← Dispatcher for selecting the right parser
+│   │
+│   ├── parsers/                   ← Specific parsers for different log types
+│   │   ├── __init__.py
+│   │   ├── base_parser.py         ← Abstract base parser class
+│   │   ├── parser_factory.py      ← Factory to get appropriate parser
+│   │   ├── parser_registry.py     ← Registry of available parsers
+│   │   ├── auth_parser.py         ← Parser for /var/log/auth.log
+│   │   ├── nginx_parser.py        ← Parser for Nginx access/error logs
+│   │   └── json_parser.py         ← Parser for structured JSON logs
+│   │
+│   ├── models/                    ← Shared data models
+│   │   ├── __init__.py
+│   │   └── log_entry.py           ← Dataclass representing a parsed log entry
+│   │
+│   └── utils/                     ← Helper functions
+│       ├── __init__.py
+│       └── time_utils.py          ← Timestamp parsing, formatting, IP/port/domain extractors
+│
+└── tests/                         ← (Optional) Unit tests if added
+    ├── __init__.py
+    └── test_parsers.py            ← Tests for individual parsers

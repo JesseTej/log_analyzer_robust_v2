@@ -4,6 +4,7 @@ from log_analyzer_backend.utils.time_utils import parse_timestamp, extract_ips_f
 from typing import List
 from .base_parser import BaseParser
 from ..models.log_entry import LogEntry
+from log_analyzer_backend.utils.line_utils import parse_log_line
 
 class NginxParser(BaseParser):
     def parse(self) -> List[LogEntry]:
@@ -17,7 +18,8 @@ class NginxParser(BaseParser):
 
         return entries
 
-    def _parse_line(self, line: str) -> LogEntry| None:
+#You should remove this piece 
+    def _parse_line(self, line: str) -> LogEntry | None:
         regex = r'^([\d.]+) - - \[(.*?)\] "(.*?)" (\d{3} \d+ ".*?" "(.*?)")$'
         match = re.match(regex, line)
 
@@ -34,9 +36,14 @@ class NginxParser(BaseParser):
 
         message = f"{request} {status} \"{user_agent}\""
 
-        src, dst = extract_ips_from_text(line)
-        srcp, dstp = extract_ports_from_text(line)
+        ips = extract_ips_from_text(line)
+        src, dst = (ips + [None, None])[:2]
+
+        ports = extract_ports_from_text(line)
+        srcp, dstp = (ports + [None, None])[:2]
+
         domains = extract_domains_from_text(line)
+
         ts = None
         if 'dt' in locals():
             ts = locals().get('dt')
@@ -44,6 +51,7 @@ class NginxParser(BaseParser):
             ts = parse_timestamp(locals().get('timestamp'))
         else:
             ts = None
+
         return LogEntry(
             timestamp=ts,
             level=locals().get('log_level', locals().get('level','UNKNOWN')),
@@ -56,4 +64,6 @@ class NginxParser(BaseParser):
             domains=domains,
             raw=line.strip()
         )
+        
+
 

@@ -3,6 +3,21 @@ import re
 from typing import List
 from datetime import datetime
 
+def parse_log_line(line: str):
+    """
+    Safely parse a log line by splitting into at most parts.
+    Returns list of tokens or None if malformed.
+    """
+    try:
+        entry = parse_log_line(line)
+        if not entry:
+            return  # skip malformed line
+
+        ip, dash1, dash2, timestamp, request, status = entry[:6]
+    except Exception:
+        return None
+
+
 def parse_timestamp(ts_str: str) -> datetime | None:
     """
     Parse a timestamp string from common log formats into a datetime object.

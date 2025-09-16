@@ -4,7 +4,7 @@ from log_analyzer_backend.models.log_entry import LogEntry
 from log_analyzer_backend.parsers.base_parser import BaseParser  # Adjust if needed
 from log_analyzer_backend.utils.time_utils import parse_timestamp
 from log_analyzer_backend.utils.time_utils import extract_ips_from_text, extract_ports_from_text, extract_domains_from_text  # Add this import
-
+from log_analyzer_backend.utils.time_utils import parse_log_line
 
 class AuthParser(BaseParser):
 
@@ -84,5 +84,11 @@ class AuthParser(BaseParser):
                 domains=domains,
                 raw=line.strip()
             )
+    
+        entry = parse_log_line(line)
+        if not entry:
+            return None  # skip malformed line
+
+        ip, dash1, dash2, timestamp, request, status = entry[:6]
                     
 
